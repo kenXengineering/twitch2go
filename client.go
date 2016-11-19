@@ -10,11 +10,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path"
 
 	"golang.org/x/net/context/ctxhttp"
 
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
-	goon "github.com/shurcooL/go-goon"
 )
 
 type Client struct {
@@ -31,7 +31,8 @@ type doOptions struct {
 }
 
 var (
-	apiURL = "https://api.twitch.tv/kraken"
+	apiURL  = "https://api.twitch.tv"
+	apiPath = "kraken"
 )
 
 // Error represents failures in the API. It represents a failure from the API.
@@ -75,7 +76,7 @@ func chooseError(ctx context.Context, err error) error {
 	}
 }
 
-func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, error) {
+func (c *Client) do(method, urlPath string, doOptions doOptions) (*http.Response, error) {
 	var params io.Reader
 	if doOptions.data != nil || doOptions.forceJSON {
 		buf, err := json.Marshal(doOptions.data)
@@ -85,10 +86,8 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 		params = bytes.NewBuffer(buf)
 	}
 	httpClient := c.HTTPClient
-	url, err := c.apiURL.Parse(path)
-	if err != nil {
-		return nil, err
-	}
+	p := path.Join(apiPath, urlPath)
+	url, err := c.apiURL.Parse(p)
 	u := url.String()
 	req, err := http.NewRequest(method, u, params)
 	if err != nil {
@@ -103,7 +102,6 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	goon.Dump(req)
 	resp, err := ctxhttp.Do(ctx, httpClient, req)
 	if err != nil {
 		return nil, chooseError(ctx, err)
