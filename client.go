@@ -1,11 +1,8 @@
 package twitch2go
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,7 +21,7 @@ type Client struct {
 }
 
 type doOptions struct {
-	data      interface{}
+	params    map[string]string
 	forceJSON bool
 	headers   map[string]string
 	context   context.Context
@@ -76,24 +73,25 @@ func chooseError(ctx context.Context, err error) error {
 	}
 }
 
-func (c *Client) do(method, urlPath string, doOptions doOptions) (*http.Response, error) {
-	var params io.Reader
-	if doOptions.data != nil || doOptions.forceJSON {
-		buf, err := json.Marshal(doOptions.data)
-		if err != nil {
-			return nil, err
-		}
-		params = bytes.NewBuffer(buf)
-	}
+func (c *Client) do(method, urlPath string, doOptions *doOptions) (*http.Response, error) {
 	httpClient := c.HTTPClient
+	var u string
 	p := path.Join(apiPath, urlPath)
 	url, err := c.apiURL.Parse(p)
-	u := url.String()
-	req, err := http.NewRequest(method, u, params)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("accept", "application/vnd.twitchtv.v3+json")
+	params := url.Query()
+	for k, v := range doOptions.params {
+		params.Add(k, v)
+	}
+	url.RawQuery = params.Encode()
+	u = url.String()
+	req, err := http.NewRequest(method, u, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("accept", "application/vnd.twitchtv.v5+json")
 	req.Header.Set("client-id", c.ClientID)
 	for k, v := range doOptions.headers {
 		req.Header.Set(k, v)
