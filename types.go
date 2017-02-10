@@ -80,3 +80,68 @@ type User struct {
 type Editors struct {
 	Users []User `json:"Users"`
 }
+
+type Videos struct {
+	Total  int     `json:"_total"`
+	Videos []Video `json:"videos"`
+}
+
+type Video struct {
+	ID              string      `json:"_id"`
+	BroadcastID     int64       `json:"broadcast_id"`
+	BroadcastType   string      `json:"broadcast_type"`
+	Channel         Channel     `json:"channel"`
+	CreatedAt       time.Time   `json:"created_at"`
+	Description     string      `json:"description"`
+	DescriptionHTML string      `json:"description_html"`
+	Fps             Fps         `json:"fps"`
+	Game            string      `json:"game"`
+	Language        string      `json:"language"`
+	Length          int         `json:"length"`
+	Preview         Preview     `json:"preview"`
+	PublishedAt     time.Time   `json:"published_at"`
+	Resolutions     Resolutions `json:"resolutions"`
+	Status          string      `json:"status"`
+	TagList         string      `json:"tag_list"`
+	Thumbnails      Thumbnails  `json:"thumbnails"`
+	Title           string      `json:"title"`
+	URL             string      `json:"url"`
+	Viewable        string      `json:"viewable"`
+	ViewableAt      interface{} `json:"viewable_at"`
+	Views           int         `json:"views"`
+}
+
+type Thumbnail struct {
+	Type string `json:"type"`
+	URL  string `json:"url"`
+}
+
+type Thumbnails struct {
+	Large    []Thumbnail `json:"large"`
+	Medium   []Thumbnail `json:"medium"`
+	Small    []Thumbnail `json:"small"`
+	Template []Thumbnail `json:"template"`
+}
+
+type Resolutions struct {
+	Chunked string `json:"chunked"`
+	High    string `json:"high"`
+	Low     string `json:"low"`
+	Medium  string `json:"medium"`
+	Mobile  string `json:"mobile"`
+}
+
+type Preview struct {
+	Large    string `json:"large"`
+	Medium   string `json:"medium"`
+	Small    string `json:"small"`
+	Template string `json:"template"`
+}
+
+type Fps struct {
+	Chunked float64 `json:"chunked"`
+	High    float64 `json:"high"`
+	Low     float64 `json:"low"`
+	Medium  float64 `json:"medium"`
+	Mobile  float64 `json:"mobile"`
+}

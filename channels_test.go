@@ -253,7 +253,7 @@ func TestGetChannelSubscribers(t *testing.T) {
 }
 
 func TestGetChannelSubscriberByUser(t *testing.T) {
-	channleID := "123456"
+	channelID := "123456"
 	userID := "654321"
 	oauth := "fakeoauth"
 	jsonResponse := `{
@@ -277,11 +277,104 @@ func TestGetChannelSubscriberByUser(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	subscriber, err := client.GetChannelSubscriberByUser(channleID, userID, oauth)
+	subscriber, err := client.GetChannelSubscriberByUser(channelID, userID, oauth)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*subscriber, expected) {
-		t.Errorf("GetChannelSubscriberByUser(%q, %q, %q):  Expected %#v.  Got %#v.", channleID, userID, oauth, expected, subscriber)
+		t.Errorf("GetChannelSubscriberByUser(%q, %q, %q):  Expected %#v.  Got %#v.", channelID, userID, oauth, expected, subscriber)
+	}
+}
+
+func TestGetChannelVideos(t *testing.T) {
+	channelID := "123456"
+	jsonResponse := `{
+      "_total": 15,
+  "videos": [
+    {
+      "title": "What happens when you don't obey the signals",
+      "description": "Yeah, I cut a train in half. Brought to you by Champdoom, thanks for finding the time code for me.",
+      "description_html": "Yeah, I cut a train in half. Brought to you by Champdoom, thanks for finding the time code for me.<br>",
+      "broadcast_id": 16367731856,
+      "broadcast_type": "highlight",
+      "status": "recorded",
+      "tag_list": "",
+      "views": 110,
+      "url": "https://www.twitch.tv/videos/17215738",
+      "language": "en",
+      "viewable": "public",
+      "viewable_at": null,
+      "animated_preview_url": "https://vod-storyboards.twitch.tv/f684a86731_rootnegative_16367731856_305882873/storyboards/17215738-strip-0.jpg",
+      "_id": "v17215738",
+      "recorded_at": "2015-09-14T09:50:41Z",
+      "game": "Factorio",
+      "length": 109,
+      "preview": {
+        "small": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-80x45.jpg",
+        "medium": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-320x180.jpg",
+        "large": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-640x360.jpg",
+        "template": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-{width}x{height}.jpg"
+      },
+      "thumbnails": {
+        "small": [
+          {
+            "url": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-80x45.jpg",
+            "type": "generated"
+          }
+        ],
+        "medium": [
+          {
+            "url": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-320x180.jpg",
+            "type": "generated"
+          }
+        ],
+        "large": [
+          {
+            "url": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-640x360.jpg",
+            "type": "generated"
+          }
+        ],
+        "template": [
+          {
+            "url": "https://static-cdn.jtvnw.net/s3_vods/f684a86731_rootnegative_16367731856_305882873//thumb/thumb17215738-{width}x{height}.jpg",
+            "type": "generated"
+          }
+        ]
+      },
+      "fps": {
+        "audio_only": 0,
+        "chunked": 29.0552212841774,
+        "high": 29.0481005452066,
+        "low": 19.4368714842515,
+        "medium": 29.0481005452066
+      },
+      "resolutions": {
+        "chunked": "852x480",
+        "high": "852x480",
+        "low": "400x226",
+        "medium": "638x360"
+      },
+      "created_at": "2015-09-14T04:06:48Z",
+      "published_at": "2015-09-14T04:06:48Z",
+      "channel": {
+        "name": "rootnegative",
+        "display_name": "rootnegative",
+        "_id": "69222531"
+      }
+    }
+    ]}`
+	var expected Videos
+	err := json.Unmarshal([]byte(jsonResponse), &expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	videos, err := client.GetChannelVideos(channelID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(*videos, expected) {
+		t.Errorf("GetChannelVideos(%q):  Expected %#v.  Got %#v.", channelID, expected, videos)
 	}
 }

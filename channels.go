@@ -144,3 +144,19 @@ func (c *Client) GetChannelSubscriberByUser(channelID string, userID string, oau
 	}
 	return subscription, nil
 }
+
+func (c *Client) GetChannelVideos(channelID string) (*Videos, error) {
+	url := fmt.Sprintf("/channels/%s/videos", channelID)
+	// Do the request
+	resp, err := c.do("GET", url, &doOptions{})
+	if err != nil {
+		return nil, errors.Annotate(err, "GetChannelVideos")
+	}
+	defer resp.Body.Close()
+	videos := &Videos{}
+	err = json.NewDecoder(resp.Body).Decode(&videos)
+	if err != nil {
+		return nil, errors.Annotate(err, "Error decoding json")
+	}
+	return videos, nil
+}
