@@ -122,3 +122,25 @@ func (c *Client) GetChannelSubscribers(channelID string, oauth string, cursor st
 	}
 	return subscribers, nil
 }
+
+func (c *Client) GetChannelSubscriberByUser(channelID string, userID string, oauth string) (*Subscription, error) {
+	if oauth == "" {
+		return nil, errors.New("OAuth token required")
+	}
+	url := fmt.Sprintf("/channles/%s/subscriptions/%s", channelID, userID)
+	ops := &doOptions{
+		oauth: oauth,
+	}
+	// Do the request
+	resp, err := c.do("GET", url, ops)
+	if err != nil {
+		return nil, errors.Annotate(err, "GetChannelSubscriberByUser")
+	}
+	defer resp.Body.Close()
+	subscription := &Subscription{}
+	err = json.NewDecoder(resp.Body).Decode(&subscription)
+	if err != nil {
+		return nil, errors.Annotate(err, "Error decoding json")
+	}
+	return subscription, nil
+}

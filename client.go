@@ -35,7 +35,7 @@ var (
 	limit   = int64(25)
 )
 
-// Error represents failures in the API. It represents a failure from the API.
+// Error represents a failure from the API.
 type Error struct {
 	Status  int
 	Message string

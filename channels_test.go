@@ -251,3 +251,37 @@ func TestGetChannelSubscribers(t *testing.T) {
 		t.Errorf("GetChannelSubscribers(%q, %q, %q, %q): Exptected %#v.  Got %#v.", id, oauth, cursor, limit, expected, subscribers)
 	}
 }
+
+func TestGetChannelSubscriberByUser(t *testing.T) {
+	channleID := "123456"
+	userID := "654321"
+	oauth := "fakeoauth"
+	jsonResponse := `{
+   "_id": "180c61c3304a0460f771ebc53ed29007a9745abc",
+   "created_at": "2016-11-30T00:37:00Z",
+   "user": {
+      "_id": "44322889",
+      "bio": "",
+      "created_at": "2015-04-20T06:18:47Z",
+      "display_name": "dallas",
+      "logo": null,
+      "name": "dallas",
+      "type": "user",
+      "updated_at": "2016-12-10T09:30:47Z"
+   }
+}`
+	var expected Subscription
+	err := json.Unmarshal([]byte(jsonResponse), &expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	subscriber, err := client.GetChannelSubscriberByUser(channleID, userID, oauth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(*subscriber, expected) {
+		t.Errorf("GetChannelSubscriberByUser(%q, %q, %q):  Expected %#v.  Got %#v.", channleID, userID, oauth, expected, subscriber)
+	}
+}
