@@ -8,8 +8,11 @@ import (
 	"github.com/juju/errors"
 )
 
-// ChannelByOAuth will return a Channel object for the given oauth.  Will return annotated errors.
-func (c *Client) ChannelByOAuth(oauth string) (*Channel, error) {
+// GetChannelByOAuth will return a Channel object for the given oauth.  Will return annotated errors.
+func (c *Client) GetChannelByOAuth(oauth string) (*Channel, error) {
+	if oauth == "" {
+		return nil, errors.New("OAuth token required")
+	}
 	url := "/channel"
 	ops := &doOptions{
 		oauth: oauth,
@@ -17,7 +20,7 @@ func (c *Client) ChannelByOAuth(oauth string) (*Channel, error) {
 	// Do the request
 	resp, err := c.do("GET", url, ops)
 	if err != nil {
-		return nil, errors.Annotate(err, "ChannelByOAuth")
+		return nil, errors.Annotate(err, "GetChannelByOAuth")
 	}
 	defer resp.Body.Close()
 	ch := &Channel{}
@@ -28,13 +31,13 @@ func (c *Client) ChannelByOAuth(oauth string) (*Channel, error) {
 	return ch, nil
 }
 
-// ChannelByID will return a Channel object for the given channelID.  Will return annotated errors.
-func (c *Client) ChannelByID(channelID string) (*Channel, error) {
+// GetChannelByID will return a Channel object for the given channelID.  Will return annotated errors.
+func (c *Client) GetChannelByID(channelID string) (*Channel, error) {
 	url := fmt.Sprintf("/channels/%s", channelID)
 	// Do the request
 	resp, err := c.do("GET", url, &doOptions{})
 	if err != nil {
-		return nil, errors.Annotate(err, "ChannelByID")
+		return nil, errors.Annotate(err, "GetChannelByID")
 	}
 	defer resp.Body.Close()
 	ch := &Channel{}
@@ -45,7 +48,10 @@ func (c *Client) ChannelByID(channelID string) (*Channel, error) {
 	return ch, nil
 }
 
-func (c *Client) ChannelEditors(channelID string, oauth string) (*[]User, error) {
+func (c *Client) GetChannelEditors(channelID string, oauth string) (*[]User, error) {
+	if oauth == "" {
+		return nil, errors.New("OAuth token required")
+	}
 	url := fmt.Sprintf("/channels/%s/editors", channelID)
 	ops := &doOptions{
 		oauth: oauth,
@@ -53,7 +59,7 @@ func (c *Client) ChannelEditors(channelID string, oauth string) (*[]User, error)
 	// Do the requst
 	resp, err := c.do("GET", url, ops)
 	if err != nil {
-		return nil, errors.Annotate(err, "ChannelEditors")
+		return nil, errors.Annotate(err, "GetChannelEditors")
 	}
 	defer resp.Body.Close()
 	editors := &Editors{}
@@ -61,11 +67,11 @@ func (c *Client) ChannelEditors(channelID string, oauth string) (*[]User, error)
 	if err != nil {
 		return nil, errors.Annotate(err, "Error decoding JSON")
 	}
-	return editors.Users, nil
+	return &editors.Users, nil
 }
 
-// ChannelFollows returns a list of users that follow the channel.  The first time you call the function, pass in an empty cursor.  On consecutive calls, pass in the curosr returned from the previous call.  When the cursor object is empty, you have reached the end of the list.  Limit is the size of the list returned.  Default is 25, maximum is 100.
-func (c *Client) ChannelFollows(channelID string, cursor string, limit int) (*Follows, error) {
+// GetChannelFollows returns a list of users that follow the channel.  The first time you call the function, pass in an empty cursor.  On consecutive calls, pass in the curosr returned from the previous call.  When the cursor object is empty, you have reached the end of the list.  Limit is the size of the list returned.  Default is 25, maximum is 100.
+func (c *Client) GetChannelFollows(channelID string, cursor string, limit int) (*Followers, error) {
 	if limit <= 0 {
 		return nil, errors.New("Limit must be a positive number less than 100")
 	} else if limit > 100 {
@@ -78,13 +84,41 @@ func (c *Client) ChannelFollows(channelID string, cursor string, limit int) (*Fo
 	// Do the request
 	resp, err := c.do("GET", url, ops)
 	if err != nil {
-		return nil, err
+		return nil, errors.Annotate(err, "GetChannelFollows")
 	}
 	defer resp.Body.Close()
-	follows := &Follows{}
+	follows := &Followers{}
 	err = json.NewDecoder(resp.Body).Decode(&follows)
 	if err != nil {
 		return nil, errors.Annotate(err, "Error decoding json")
 	}
 	return follows, nil
+}
+
+func (c *Client) GetChannelSubscribers(channelID string, oauth string, cursor string, limit int) (*Subscribers, error) {
+	if limit <= 0 {
+		return nil, errors.New("Limit must be a positive number less than 100")
+	} else if limit > 100 {
+		return nil, errors.New("Limit must be less than or equal to 100")
+	}
+	if oauth == "" {
+		return nil, errors.New("OAuth token required")
+	}
+	url := fmt.Sprintf("/channels/%s/subscriptions", channelID)
+	ops := &doOptions{
+		params: map[string]string{"cursor": cursor, "limit": strconv.Itoa(limit)},
+		oauth:  oauth,
+	}
+	// Do the request
+	resp, err := c.do("GET", url, ops)
+	if err != nil {
+		return nil, errors.Annotate(err, "GetChannelSubscribers")
+	}
+	defer resp.Body.Close()
+	subscribers := &Subscribers{}
+	err = json.NewDecoder(resp.Body).Decode(&subscribers)
+	if err != nil {
+		return nil, errors.Annotate(err, "Error decoding json")
+	}
+	return subscribers, nil
 }

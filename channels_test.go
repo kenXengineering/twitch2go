@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestChannelByID(t *testing.T) {
+func TestGetChannelByID(t *testing.T) {
 	channelID := "6391593"
 	jsonChannel := `{
   "mature": false,
@@ -36,16 +36,16 @@ func TestChannelByID(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonChannel, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	channel, err := client.ChannelByID(channelID)
+	channel, err := client.GetChannelByID(channelID)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*channel, expected) {
-		t.Errorf("ChannelByID(%q): Expected %#v.  Got %#v.", channelID, expected, channel)
+		t.Errorf("GetChannelByID(%q): Expected %#v.  Got %#v.", channelID, expected, channel)
 	}
 }
 
-func TestChannelByOAuth(t *testing.T) {
+func TestGetChannelByOAuth(t *testing.T) {
 	oauth := "testoauth"
 	jsonChannel := `{
   "mature": false,
@@ -76,16 +76,16 @@ func TestChannelByOAuth(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonChannel, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	channel, err := client.ChannelByOAuth(oauth)
+	channel, err := client.GetChannelByOAuth(oauth)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*channel, expected) {
-		t.Errorf("ChannelByOAuth(%q): Expected %#v.  Got %#v.", oauth, expected, channel)
+		t.Errorf("GetChannelByOAuth(%q): Expected %#v.  Got %#v.", oauth, expected, channel)
 	}
 }
 
-func TestChannelEditors(t *testing.T) {
+func TestGetChannelEditors(t *testing.T) {
 	id := "123456"
 	authToken := "fakeauthtoken1"
 	jsonResponse := `{
@@ -109,16 +109,16 @@ func TestChannelEditors(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	users, err := client.ChannelEditors(id, authToken)
+	users, err := client.GetChannelEditors(id, authToken)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(users, editors.Users) {
-		t.Errorf("ChannelEditors(%q, %q): Exptected %#v.  Got %#v.", id, authToken, editors.Users, users)
+	if !reflect.DeepEqual(users, &editors.Users) {
+		t.Errorf("GetChannelEditors(%q, %q): Exptected %#v.  Got %#v.", id, authToken, editors.Users, users)
 	}
 }
 
-func TestChannelFollows(t *testing.T) {
+func TestGetChannelFollows(t *testing.T) {
 	cursor := ""
 	limit := 10
 	id := "69222531"
@@ -198,18 +198,56 @@ func TestChannelFollows(t *testing.T) {
     }
   ]
 }`
-	var expected Follows
+	var expected Followers
 	err := json.Unmarshal([]byte(jsonResponse), &expected)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	follows, err := client.ChannelFollows(id, cursor, limit)
+	follows, err := client.GetChannelFollows(id, cursor, limit)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*follows, expected) {
-		t.Errorf("ChannelFollows(%q, %q, %q): Exptected %#v.  Got %#v.", id, cursor, limit, expected, follows)
+		t.Errorf("GetChannelFollows(%q, %q, %q): Exptected %#v.  Got %#v.", id, cursor, limit, expected, follows)
+	}
+}
+
+func TestGetChannelSubscribers(t *testing.T) {
+	cursor := ""
+	limit := 10
+	id := "69222531"
+	oauth := "fakeoauth"
+	jsonResponse := `{
+   "_total": 1,
+   "subscriptions": [{
+      "_id": "67123294ed8305ce3a8ef09649d2237c5a300590",
+      "created_at": "2014-05-19T23:38:53Z",
+      "user": {
+            "_id": "44322889",
+            "bio": null,
+            "created_at": "2014-01-28T00:50:38Z",
+            "display_name": "dallas",
+            "logo": null,
+            "name": "dallas",
+            "type": "staff",
+            "updated_at": "2016-05-05T20:47:07Z"
+      }
+   }]
+}`
+	var expected Subscribers
+	err := json.Unmarshal([]byte(jsonResponse), &expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	subscribers, err := client.GetChannelSubscribers(id, oauth, cursor, limit)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(*subscribers, expected) {
+		t.Errorf("GetChannelSubscribers(%q, %q, %q, %q): Exptected %#v.  Got %#v.", id, oauth, cursor, limit, expected, subscribers)
 	}
 }

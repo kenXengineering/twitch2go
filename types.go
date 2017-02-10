@@ -33,7 +33,7 @@ type Post struct {
 	User      User      `json:"user"`
 }
 
-// Follower Follower data for twtich channel
+// Follower data for twtich channel
 type Follow struct {
 	CreatedAt     time.Time         `json:"created_at"`
 	Links         map[string]string `json:"_links"`
@@ -42,10 +42,22 @@ type Follow struct {
 	Channel       Channel           `json:"channel"`
 }
 
-type Follows struct {
+type Followers struct {
 	Total   int64    `json:"_total"`
 	Cursor  string   `json:"_cursor"`
 	Follows []Follow `json:"follows"`
+}
+
+type Subscription struct {
+	ID        string    `json:"_id"`
+	CreatedAt time.Time `json:"created_at"`
+	User      User      `json:"user"`
+}
+
+type Subscribers struct {
+	Total         int64          `json:"_total"`
+	Cursor        string         `json:"_cursor"`
+	Subscriptions []Subscription `json:"subscriptions"`
 }
 
 type UserSearchResult struct {
@@ -66,5 +78,5 @@ type User struct {
 }
 
 type Editors struct {
-	Users *[]User `json:"Users"`
+	Users []User `json:"Users"`
 }
