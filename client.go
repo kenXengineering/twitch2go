@@ -12,6 +12,7 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
+	"github.com/juju/errors"
 )
 
 type Client struct {
@@ -24,12 +25,14 @@ type doOptions struct {
 	params    map[string]string
 	forceJSON bool
 	headers   map[string]string
+	oauth     string
 	context   context.Context
 }
 
 var (
 	apiURL  = "https://api.twitch.tv"
 	apiPath = "kraken"
+	limit   = int64(25)
 )
 
 // Error represents failures in the API. It represents a failure from the API.
@@ -79,7 +82,7 @@ func (c *Client) do(method, urlPath string, doOptions *doOptions) (*http.Respons
 	p := path.Join(apiPath, urlPath)
 	url, err := c.apiURL.Parse(p)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params := url.Query()
 	for k, v := range doOptions.params {
@@ -89,10 +92,13 @@ func (c *Client) do(method, urlPath string, doOptions *doOptions) (*http.Respons
 	u = url.String()
 	req, err := http.NewRequest(method, u, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	req.Header.Set("accept", "application/vnd.twitchtv.v5+json")
 	req.Header.Set("client-id", c.ClientID)
+	if doOptions.oauth != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("OAuth %s", doOptions.oauth))
+	}
 	for k, v := range doOptions.headers {
 		req.Header.Set(k, v)
 	}
@@ -102,10 +108,10 @@ func (c *Client) do(method, urlPath string, doOptions *doOptions) (*http.Respons
 	}
 	resp, err := ctxhttp.Do(ctx, httpClient, req)
 	if err != nil {
-		return nil, chooseError(ctx, err)
+		return nil, errors.Trace(chooseError(ctx, err))
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return nil, newError(resp)
+		return nil, errors.Trace(newError(resp))
 	}
 	return resp, nil
 }

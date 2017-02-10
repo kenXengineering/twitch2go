@@ -1,38 +1,6 @@
 package twitch2go
 
-import (
-	"encoding/json"
-	"strconv"
-	"time"
-)
-
-type UserSearchResult struct {
-	Total int64        `json:"_total"`
-	Users []SearchUser `json:"users"`
-}
-
-// User Twitch User Data
-type User struct {
-	Type        string    `json:"type"`
-	Name        string    `json:"name"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Logo        string    `json:"logo"`
-	ID          int64     `json:"_id"`
-	DisplayName string    `json:"display_name"`
-	Bio         string    `json:"bio"`
-}
-
-type SearchUser struct {
-	Type        string    `json:"type"`
-	Name        string    `json:"name"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Logo        string    `json:"logo"`
-	ID          string    `json:"_id"`
-	DisplayName string    `json:"display_name"`
-	Bio         string    `json:"bio"`
-}
+import "encoding/json"
 
 var searchUserUrl = "search/users"
 
@@ -53,24 +21,7 @@ func (c *Client) SearchUsers(user string) (*[]User, error) {
 	if err != nil {
 		return nil, err
 	}
-	// So right now twitch returns the user object with a string ID when searched,
-	// and uses an INT everywhere else, gumble grumble
-	users := []User{}
-	for _, u := range result.Users {
-		id, _ := strconv.ParseInt(u.ID, 10, 64)
-		uu := User{
-			Type:        u.Type,
-			Name:        u.Name,
-			CreatedAt:   u.CreatedAt,
-			UpdatedAt:   u.UpdatedAt,
-			Logo:        u.Logo,
-			ID:          id,
-			DisplayName: u.DisplayName,
-			Bio:         u.Bio,
-		}
-		users = append(users, uu)
-	}
-	return &users, nil
+	return &result.Users, nil
 }
 
 func (c *Client) SearchExactUser(user string) (*User, error) {
@@ -85,3 +36,108 @@ func (c *Client) SearchExactUser(user string) (*User, error) {
 	}
 	return nil, nil
 }
+
+// func (c *Client) UserFollowsStreaming(channelID int64, dataChan chan<- []Follow, doneChan chan<- bool, errChan chan<- error) {
+// 	user := strconv.FormatInt(channelID, 10)
+// 	url := "users/" + user + "/follows/channels"
+// 	doOptions := &doOptions{
+// 		params: map[string]string{
+// 			"direction": "DESC",
+// 			"limit":     strconv.FormatInt(limit, 10),
+// 			"offset":    "0",
+// 			"sortby":    "created_at",
+// 		},
+// 	}
+
+// 	// Get the initial response
+// 	resp, err := c.do("GET", url, doOptions)
+// 	if err != nil {
+// 		errChan <- err
+// 		doneChan <- true
+// 		return
+// 	}
+// 	defer resp.Body.Close()
+// 	fr := &followResponse{}
+// 	err = json.NewDecoder(resp.Body).Decode(&fr)
+// 	if err != nil {
+// 		errChan <- err
+// 		doneChan <- true
+// 		return
+// 	}
+// 	var follows []Follow
+// 	follows = append(follows, fr.Follows...)
+// 	dataChan <- follows
+// 	offset := limit
+// 	for {
+// 		if offset > fr.Total {
+// 			break
+// 		}
+// 		doOptions.params["offset"] = strconv.FormatInt(offset, 10)
+// 		resp, err = c.do("GET", url, doOptions)
+// 		if err != nil {
+// 			errChan <- err
+// 			doneChan <- true
+// 			return
+// 		}
+// 		defer resp.Body.Close()
+// 		fr = &followResponse{}
+// 		err = json.NewDecoder(resp.Body).Decode(&fr)
+// 		if err != nil {
+// 			errChan <- err
+// 			doneChan <- true
+// 			return
+// 		}
+// 		follows = []Follow{}
+// 		follows = append(follows, fr.Follows...)
+// 		dataChan <- follows
+// 		offset += limit
+// 	}
+// 	doneChan <- true
+// }
+
+// func (c *Client) UserFollows(id int64) (*[]Follow, error) {
+// 	user := strconv.FormatInt(id, 10)
+// 	url := "users/" + user + "/follows/channels"
+// 	doOptions := &doOptions{
+// 		params: map[string]string{
+// 			"direction": "DESC",
+// 			"limit":     strconv.FormatInt(limit, 10),
+// 			"offset":    "0",
+// 			"sortby":    "created_at",
+// 		},
+// 	}
+
+// 	// Get the initial response
+// 	resp, err := c.do("GET", url, doOptions)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer resp.Body.Close()
+// 	fr := &followResponse{}
+// 	err = json.NewDecoder(resp.Body).Decode(&fr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	var follows []Follow
+// 	follows = append(follows, fr.Follows...)
+// 	offset := limit
+// 	for {
+// 		if offset > fr.Total {
+// 			break
+// 		}
+// 		doOptions.params["offset"] = strconv.FormatInt(offset, 10)
+// 		resp, err = c.do("GET", url, doOptions)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		defer resp.Body.Close()
+// 		fr = &followResponse{}
+// 		err = json.NewDecoder(resp.Body).Decode(&fr)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		follows = append(follows, fr.Follows...)
+// 		offset += limit
+// 	}
+// 	return &follows, nil
+// }
