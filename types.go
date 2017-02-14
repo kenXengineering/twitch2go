@@ -1,36 +1,39 @@
 package twitch2go
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Channel Twitch Channel Data
 type Channel struct {
-	Mature                       bool      `json:"mature"`
-	Status                       string    `json:"status"`
-	BroadcasterLanguage          string    `json:"broadcaster_language"`
-	DisplayName                  string    `json:"display_name"`
-	Game                         string    `json:"game"`
-	Language                     string    `json:"language"`
-	ID                           string    `json:"_id"`
-	Name                         string    `json:"name"`
-	CreatedAt                    time.Time `json:"created_at"`
-	UpdatedAt                    time.Time `json:"updated_at"`
-	Logo                         string    `json:"logo"`
-	VideoBanner                  string    `json:"video_banner"`
-	ProfileBanner                string    `json:"profile_banner"`
-	ProfileBannerBackgroundColor string    `json:"profile_banner_background_color"`
-	Partner                      bool      `json:"partner"`
-	URL                          string    `json:"url"`
-	Views                        int64     `json:"views"`
-	Followers                    int64     `json:"followers"`
+	Mature                       bool        `json:"mature"`
+	Status                       string      `json:"status"`
+	BroadcasterLanguage          string      `json:"broadcaster_language"`
+	DisplayName                  string      `json:"display_name"`
+	Game                         string      `json:"game"`
+	Language                     string      `json:"language"`
+	ID                           json.Number `json:"_id,number"`
+	Name                         string      `json:"name"`
+	CreatedAt                    time.Time   `json:"created_at"`
+	UpdatedAt                    time.Time   `json:"updated_at"`
+	Logo                         string      `json:"logo"`
+	VideoBanner                  string      `json:"video_banner"`
+	ProfileBanner                string      `json:"profile_banner"`
+	ProfileBannerBackgroundColor string      `json:"profile_banner_background_color"`
+	Partner                      bool        `json:"partner"`
+	URL                          string      `json:"url"`
+	Views                        int64       `json:"views"`
+	Followers                    int64       `json:"followers"`
 }
 
 type Post struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json":created_at"`
-	Deleted   bool      `json:"deleted"`
-	Emotes    []string  `json:"emotes"`
-	Body      string    `json:"body"`
-	User      User      `json:"user"`
+	ID        json.Number `json:"id,number"`
+	CreatedAt time.Time   `json:"created_at"`
+	Deleted   bool        `json:"deleted"`
+	Emotes    []string    `json:"emotes"`
+	Body      string      `json:"body"`
+	User      User        `json:"user"`
 }
 
 // Follower data for twtich channel
@@ -49,9 +52,9 @@ type Followers struct {
 }
 
 type Subscription struct {
-	ID        string    `json:"_id"`
-	CreatedAt time.Time `json:"created_at"`
-	User      User      `json:"user"`
+	ID        json.Number `json:"_id,number"`
+	CreatedAt time.Time   `json:"created_at"`
+	User      User        `json:"user"`
 }
 
 type Subscribers struct {
@@ -67,14 +70,14 @@ type UserSearchResult struct {
 
 // User Twitch User Data
 type User struct {
-	Type        string    `json:"type"`
-	Name        string    `json:"name"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Logo        string    `json:"logo"`
-	ID          string    `json:"_id"`
-	DisplayName string    `json:"display_name"`
-	Bio         string    `json:"bio"`
+	Type        string      `json:"type"`
+	Name        string      `json:"name"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+	Logo        string      `json:"logo"`
+	ID          json.Number `json:"_id,number"`
+	DisplayName string      `json:"display_name"`
+	Bio         string      `json:"bio"`
 }
 
 type Editors struct {
@@ -88,7 +91,7 @@ type Videos struct {
 
 type Video struct {
 	ID              string      `json:"_id"`
-	BroadcastID     int64       `json:"broadcast_id"`
+	BroadcastID     json.Number `json:"broadcast_id,number"`
 	BroadcastType   string      `json:"broadcast_type"`
 	Channel         Channel     `json:"channel"`
 	CreatedAt       time.Time   `json:"created_at"`
@@ -144,4 +147,27 @@ type Fps struct {
 	Low     float64 `json:"low"`
 	Medium  float64 `json:"medium"`
 	Mobile  float64 `json:"mobile"`
+}
+
+type Stream struct {
+	ID          json.Number `json:"_id,number"`
+	Game        string      `json:"game"`
+	CommunityID string      `json:"community_id"`
+	Viewers     int         `json:"viewers"`
+	VideoHeight int         `json:"video_height"`
+	AverageFps  float64     `json:"average_fps"`
+	Delay       int         `json:"delay"`
+	CreatedAt   time.Time   `json:"created_at"`
+	IsPlaylist  bool        `json:"is_playlist"`
+	Preview     Preview     `json:"preview"`
+	Channel     Channel     `json:"channel"`
+}
+
+type StreamResponse struct {
+	Stream Stream `json:"stream"`
+}
+
+type FollowedStream struct {
+	Total   int64    `json:"_total"`
+	Streams []Stream `json:"streams"`
 }
