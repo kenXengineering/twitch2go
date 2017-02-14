@@ -2,14 +2,13 @@ package twitch2go
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/juju/errors"
 )
 
 // GetStreamByChannel returns a StreamResponse for the given channel
 func (c *Client) GetStreamByChannel(channelID string) (*StreamResponse, error) {
-	url := fmt.Sprintf("/streams/%s", channelID)
+	url := "/streams/" + channelID
 	// Do the request
 	resp, err := c.do("GET", url, &doOptions{})
 	if err != nil {

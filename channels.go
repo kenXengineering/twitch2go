@@ -2,7 +2,6 @@ package twitch2go
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/juju/errors"
@@ -10,9 +9,6 @@ import (
 
 // GetChannelByOAuth will return a Channel object for the given oauth.  Will return annotated errors.
 func (c *Client) GetChannelByOAuth(oauth string) (*Channel, error) {
-	if oauth == "" {
-		return nil, errors.New("OAuth token required")
-	}
 	url := "/channel"
 	ops := &doOptions{
 		oauth: oauth,
@@ -33,7 +29,7 @@ func (c *Client) GetChannelByOAuth(oauth string) (*Channel, error) {
 
 // GetChannelByID will return a Channel object for the given channelID.  Will return annotated errors.
 func (c *Client) GetChannelByID(channelID string) (*Channel, error) {
-	url := fmt.Sprintf("/channels/%s", channelID)
+	url := "/channels" + channelID
 	// Do the request
 	resp, err := c.do("GET", url, &doOptions{})
 	if err != nil {
@@ -50,10 +46,7 @@ func (c *Client) GetChannelByID(channelID string) (*Channel, error) {
 
 // GetChannelEditors returns a list of Users that are editors for the given channel.  Requires users oauth token.
 func (c *Client) GetChannelEditors(channelID string, oauth string) (*[]User, error) {
-	if oauth == "" {
-		return nil, errors.New("OAuth token required")
-	}
-	url := fmt.Sprintf("/channels/%s/editors", channelID)
+	url := "/channels/" + channelID + "/editors"
 	ops := &doOptions{
 		oauth: oauth,
 	}
@@ -94,7 +87,7 @@ func (c *Client) GetChannelFollows(channelID string, cursor string, limit int, d
 	} else if limit > 100 {
 		limit = 100
 	}
-	url := fmt.Sprintf("/channels/%s/follows", channelID)
+	url := "/channels/" + channelID + "/follows"
 	ops := &doOptions{
 		params: map[string]string{
 			"cursor":    cursor,
@@ -139,10 +132,7 @@ func (c *Client) GetChannelSubscribers(channelID string, oauth string, limit int
 	} else if limit > 100 {
 		limit = 100
 	}
-	if oauth == "" {
-		return nil, errors.New("OAuth token required")
-	}
-	url := fmt.Sprintf("/channels/%s/subscriptions", channelID)
+	url := "/channels/" + channelID + "/subscriptions"
 	ops := &doOptions{
 		params: map[string]string{
 			"limit":     strconv.Itoa(limit),
@@ -167,10 +157,7 @@ func (c *Client) GetChannelSubscribers(channelID string, oauth string, limit int
 
 // GetChannelSubscriberByUser will return the subscriber information if the user is subscribed to the channel.
 func (c *Client) GetChannelSubscriberByUser(channelID string, userID string, oauth string) (*Subscription, error) {
-	if oauth == "" {
-		return nil, errors.New("OAuth token required")
-	}
-	url := fmt.Sprintf("/channles/%s/subscriptions/%s", channelID, userID)
+	url := "/channels/" + channelID + "/subscribtions/" + userID
 	ops := &doOptions{
 		oauth: oauth,
 	}
@@ -212,7 +199,7 @@ Function takes size parameters:
 		Sorting order of returned videos.  Valid values `views` and `time`.  Default is `time` (most recent first).
 */
 func (c *Client) GetChannelVideos(channelID string, limit int, offset int, broadcastType string, language string, sort VideoSort) (*Videos, error) {
-	url := fmt.Sprintf("/channels/%s/videos", channelID)
+	url := "/channels/" + channelID + "/videos"
 	if limit <= 0 {
 		limit = 10
 	} else if limit > 100 {
