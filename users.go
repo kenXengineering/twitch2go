@@ -34,16 +34,20 @@ func (c *Client) GetUserByOAuth(oauth string) (*User, error) {
 GetUserFollows returns a list of channles the given user follows.
 
 The function takes in five parameters:
-	userID:  The User ID
+	userID:
+		The User ID
 
-	limit:  The number of channels to return.  Max is 100, default is 25.
+	limit:
+		The number of channels to return.  Max is 100, default is 25.
 
-	offset:  The offset in the list to return.  If a list has more entries then the limit, the returned list will be a subset of the whole.  The offset lets you continue where you left off.
-		Example:  List size is 135.  Limit is 100.  After the first 100 are returned, call again with an offset of 100 to get the next set of channels.
+	offset:
+		The offset in the list to return.  If a list has more entries then the limit, the returned list will be a subset of the whole.  The offset lets you continue where you left off.
 
-	direction:  The direction of the returned list.  Values are asc and dsc.
+	direction:
+		The direction of the returned list.  Values are `ASC` and `DESC` (newest first).  Default is `DESC`.
 
-	sortBy:  The sort of the returned list.  Values are `created_at`, `last_broadcast`, and `login`.
+	sortBy:
+		The sort of the returned list.  Values are `CreatedAt`, `LastBroadcast`, and `Login`  Default is `CreatedAt`.
 */
 func (c *Client) GetUserFollows(userID string, limit int, offset int, direction Direction, sortBy SortBy) (*Followers, error) {
 	url := fmt.Sprintf("/users/%s/follows/channels", userID)

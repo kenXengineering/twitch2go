@@ -71,16 +71,36 @@ func (c *Client) GetChannelEditors(channelID string, oauth string) (*[]User, err
 	return &editors.Users, nil
 }
 
-// GetChannelFollows returns a list of users that follow the channel.  The first time you call the function, pass in an empty cursor.  On consecutive calls, pass in the curosr returned from the previous call.  When the cursor object is empty, you have reached the end of the list.  Limit is the size of the list returned.  Default is 25, maximum is 100.
-func (c *Client) GetChannelFollows(channelID string, cursor string, limit int) (*Followers, error) {
+/*
+GetChannelFollows returns a list of followers for the given channel.  Since a channel can have thousands of followers, you must make multiple requests of smaller sizes.
+
+The function takes four parameters:
+
+	channelID:
+		The channel ID
+
+	cursor:
+		Tells the server where to start fetching the next set of results, in a multi-page response.
+
+	limit:
+		Number of records to return.  Maximum is 100, default is 25.
+
+	direction:
+		Direction of sorting.  Valid values are `ASC`, and `DESC` (newest first).  Default is `DESC`.
+*/
+func (c *Client) GetChannelFollows(channelID string, cursor string, limit int, direction Direction) (*Followers, error) {
 	if limit <= 0 {
-		return nil, errors.New("Limit must be a positive number less than 100")
+		limit = 25
 	} else if limit > 100 {
-		return nil, errors.New("Limit must be less than or equal to 100")
+		limit = 100
 	}
 	url := fmt.Sprintf("/channels/%s/follows", channelID)
 	ops := &doOptions{
-		params: map[string]string{"cursor": cursor, "limit": strconv.Itoa(limit)},
+		params: map[string]string{
+			"cursor":    cursor,
+			"limit":     strconv.Itoa(limit),
+			"direction": string(direction),
+		},
 	}
 	// Do the request
 	resp, err := c.do("GET", url, ops)
@@ -97,21 +117,39 @@ func (c *Client) GetChannelFollows(channelID string, cursor string, limit int) (
 }
 
 /*
+GetChannelSubscribers returns a list of users that are subscribe to the channel.
 
- */
-func (c *Client) GetChannelSubscribers(channelID string, oauth string, cursor string, limit int) (*Subscribers, error) {
+Function takes five parameters:
+
+	channelID:
+		ID of the Channel
+
+	oauth:
+		User oauth token
+
+	limit:
+		Maximum number of objects top return.  Default 25, Maximum 100.
+
+	direction:
+		Sorting direction.  Valid values are `ASC` and `DESC`.  Default `ASC` (oldest first)
+*/
+func (c *Client) GetChannelSubscribers(channelID string, oauth string, limit int, offset int, direction Direction) (*Subscribers, error) {
 	if limit <= 0 {
-		return nil, errors.New("Limit must be a positive number less than 100")
+		limit = 25
 	} else if limit > 100 {
-		return nil, errors.New("Limit must be less than or equal to 100")
+		limit = 100
 	}
 	if oauth == "" {
 		return nil, errors.New("OAuth token required")
 	}
 	url := fmt.Sprintf("/channels/%s/subscriptions", channelID)
 	ops := &doOptions{
-		params: map[string]string{"cursor": cursor, "limit": strconv.Itoa(limit)},
-		oauth:  oauth,
+		params: map[string]string{
+			"limit":     strconv.Itoa(limit),
+			"offset":    strconv.Itoa(offset),
+			"direction": string(direction),
+		},
+		oauth: oauth,
 	}
 	// Do the request
 	resp, err := c.do("GET", url, ops)
@@ -127,6 +165,7 @@ func (c *Client) GetChannelSubscribers(channelID string, oauth string, cursor st
 	return subscribers, nil
 }
 
+// GetChannelSubscriberByUser will return the subscriber information if the user is subscribed to the channel.
 func (c *Client) GetChannelSubscriberByUser(channelID string, userID string, oauth string) (*Subscription, error) {
 	if oauth == "" {
 		return nil, errors.New("OAuth token required")
@@ -149,10 +188,48 @@ func (c *Client) GetChannelSubscriberByUser(channelID string, userID string, oau
 	return subscription, nil
 }
 
-func (c *Client) GetChannelVideos(channelID string) (*Videos, error) {
+/*
+GetChannelVideos returns a list of all videos on the given channel.
+
+Function takes size parameters:
+
+	channelID:
+		Channel ID
+
+	limit:
+		Maximum number of objects to return.  Default 10, Maximum 100.
+
+	offset:
+		The offset in the list to return.  If a list has more entries then the limit, the returned list will be a subset of the whole.  The offset lets you continue where you left off.
+
+	broadcastType:
+		Comma separated list with any combination of `archive`, `highlight`, and `upload`.  Default is `highlight`.
+
+	language:
+		Constrains the language of the videos returned.  For example `en,es`.  Default is all languages.
+
+	sort:
+		Sorting order of returned videos.  Valid values `views` and `time`.  Default is `time` (most recent first).
+*/
+func (c *Client) GetChannelVideos(channelID string, limit int, offset int, broadcastType string, language string, sort VideoSort) (*Videos, error) {
 	url := fmt.Sprintf("/channels/%s/videos", channelID)
+	if limit <= 0 {
+		limit = 10
+	} else if limit > 100 {
+		limit = 100
+	}
+	opts := &doOptions{
+		params: map[string]string{
+			"limit":          strconv.Itoa(limit),
+			"offset":         strconv.Itoa(offset),
+			"boradcast_type": broadcastType,
+			"language":       language,
+			"sort":           string(sort),
+		},
+	}
+
 	// Do the request
-	resp, err := c.do("GET", url, &doOptions{})
+	resp, err := c.do("GET", url, opts)
 	if err != nil {
 		return nil, errors.Annotate(err, "GetChannelVideos")
 	}

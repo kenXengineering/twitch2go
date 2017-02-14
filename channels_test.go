@@ -122,6 +122,7 @@ func TestGetChannelFollows(t *testing.T) {
 	cursor := ""
 	limit := 10
 	id := "69222531"
+	direction := ASC
 	jsonResponse := `{
   "_total": 1194,
   "_cursor": "1486145103566302000",
@@ -205,20 +206,21 @@ func TestGetChannelFollows(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	follows, err := client.GetChannelFollows(id, cursor, limit)
+	follows, err := client.GetChannelFollows(id, cursor, limit, direction)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*follows, expected) {
-		t.Errorf("GetChannelFollows(%q, %q, %q): Exptected %#v.  Got %#v.", id, cursor, limit, expected, follows)
+		t.Errorf("GetChannelFollows(%q, %q, %q, %q): Exptected %#v.  Got %#v.", id, cursor, limit, direction, expected, follows)
 	}
 }
 
 func TestGetChannelSubscribers(t *testing.T) {
-	cursor := ""
 	limit := 10
 	id := "69222531"
 	oauth := "fakeoauth"
+	offset := 0
+	direction := ASC
 	jsonResponse := `{
    "_total": 1,
    "subscriptions": [{
@@ -243,12 +245,12 @@ func TestGetChannelSubscribers(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	subscribers, err := client.GetChannelSubscribers(id, oauth, cursor, limit)
+	subscribers, err := client.GetChannelSubscribers(id, oauth, limit, offset, direction)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*subscribers, expected) {
-		t.Errorf("GetChannelSubscribers(%q, %q, %q, %q): Exptected %#v.  Got %#v.", id, oauth, cursor, limit, expected, subscribers)
+		t.Errorf("GetChannelSubscribers(%q, %q, %q, %q, %q): Exptected %#v.  Got %#v.", id, oauth, limit, offset, direction, expected, subscribers)
 	}
 }
 
@@ -288,6 +290,11 @@ func TestGetChannelSubscriberByUser(t *testing.T) {
 
 func TestGetChannelVideos(t *testing.T) {
 	channelID := "123456"
+	limit := 10
+	offset := 0
+	broadcastType := ""
+	language := ""
+	sort := Views
 	jsonResponse := `{
       "_total": 15,
   "videos": [
@@ -370,11 +377,11 @@ func TestGetChannelVideos(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	videos, err := client.GetChannelVideos(channelID)
+	videos, err := client.GetChannelVideos(channelID, limit, offset, broadcastType, language, sort)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*videos, expected) {
-		t.Errorf("GetChannelVideos(%q):  Expected %#v.  Got %#v.", channelID, expected, videos)
+		t.Errorf("GetChannelVideos(%q, %q, %q, %q, %q, %q):  Expected %#v.  Got %#v.", channelID, limit, offset, broadcastType, language, sort, expected, videos)
 	}
 }

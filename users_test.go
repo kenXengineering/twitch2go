@@ -45,6 +45,10 @@ func TestGetUserByOAuth(t *testing.T) {
 
 func TestGetUserFollows(t *testing.T) {
 	userID := "123456"
+	limit := 100
+	offset := 0
+	direction := ASC
+	sortBy := CreatedAt
 	jsonResponse := `
 {
     "_total": 1,
@@ -83,11 +87,11 @@ func TestGetUserFollows(t *testing.T) {
 	}
 	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
 	client := newTestClient(fakeRT)
-	follows, err := client.GetUserFollows(userID)
+	follows, err := client.GetUserFollows(userID, limit, offset, direction, sortBy)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*follows, expected) {
-		t.Errorf("GetUserFollows(%q): Expected %#v.  Got %#v.", userID, expected, follows)
+		t.Errorf("GetUserFollows(%q, %q, %q, %q, %q): Expected %#v.  Got %#v.", userID, limit, offset, direction, sortBy, expected, follows)
 	}
 }

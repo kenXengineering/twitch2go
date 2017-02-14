@@ -7,13 +7,16 @@ import (
 
 type Direction string
 type SortBy string
+type VideoSort string
 
 const (
 	ASC           Direction = "asc"
-	DSC           Direction = "dsc"
+	DESC          Direction = "desc"
 	CreatedAt     SortBy    = "created_at"
 	LastBroadcast SortBy    = "last_broadcast"
 	Login         SortBy    = "login"
+	Views         VideoSort = "views"
+	Time          VideoSort = "time"
 )
 
 // Channel Twitch Channel Data
