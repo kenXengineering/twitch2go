@@ -5,6 +5,17 @@ import (
 	"time"
 )
 
+type Direction string
+type SortBy string
+
+const (
+	ASC           Direction = "asc"
+	DSC           Direction = "dsc"
+	CreatedAt     SortBy    = "created_at"
+	LastBroadcast SortBy    = "last_broadcast"
+	Login         SortBy    = "login"
+)
+
 // Channel Twitch Channel Data
 type Channel struct {
 	Mature                       bool        `json:"mature"`
@@ -36,7 +47,7 @@ type Post struct {
 	User      User        `json:"user"`
 }
 
-// Follower data for twtich channel
+// Follower data for twitch channel
 type Follow struct {
 	CreatedAt     time.Time         `json:"created_at"`
 	Links         map[string]string `json:"_links"`
@@ -70,14 +81,24 @@ type UserSearchResult struct {
 
 // User Twitch User Data
 type User struct {
-	Type        string      `json:"type"`
-	Name        string      `json:"name"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
-	Logo        string      `json:"logo"`
-	ID          json.Number `json:"_id,number"`
-	DisplayName string      `json:"display_name"`
-	Bio         string      `json:"bio"`
+	Type             string        `json:"type"`
+	Name             string        `json:"name"`
+	CreatedAt        time.Time     `json:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at"`
+	Logo             string        `json:"logo"`
+	ID               json.Number   `json:"_id,number"`
+	DisplayName      string        `json:"display_name"`
+	Bio              string        `json:"bio"`
+	Email            string        `json:"email"`
+	EmailVerified    bool          `json:"email_verified"`
+	Partnered        bool          `json:"partnered"`
+	TwitterConnected bool          `json:"twitter_connected"`
+	Notifications    Notifications `json:"notifications"`
+}
+
+type Notifications struct {
+	Email bool `json:"email"`
+	Push  bool `json:"push"`
 }
 
 type Editors struct {

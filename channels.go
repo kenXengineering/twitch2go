@@ -48,6 +48,7 @@ func (c *Client) GetChannelByID(channelID string) (*Channel, error) {
 	return ch, nil
 }
 
+// GetChannelEditors returns a list of Users that are editors for the given channel.  Requires users oauth token.
 func (c *Client) GetChannelEditors(channelID string, oauth string) (*[]User, error) {
 	if oauth == "" {
 		return nil, errors.New("OAuth token required")
@@ -95,6 +96,9 @@ func (c *Client) GetChannelFollows(channelID string, cursor string, limit int) (
 	return follows, nil
 }
 
+/*
+
+ */
 func (c *Client) GetChannelSubscribers(channelID string, oauth string, cursor string, limit int) (*Subscribers, error) {
 	if limit <= 0 {
 		return nil, errors.New("Limit must be a positive number less than 100")

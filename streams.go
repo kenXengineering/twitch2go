@@ -7,6 +7,7 @@ import (
 	"github.com/juju/errors"
 )
 
+// GetStreamByChannel returns a StreamResponse for the given channel
 func (c *Client) GetStreamByChannel(channelID string) (*StreamResponse, error) {
 	url := fmt.Sprintf("/streams/%s", channelID)
 	// Do the request
@@ -23,6 +24,7 @@ func (c *Client) GetStreamByChannel(channelID string) (*StreamResponse, error) {
 	return stream, nil
 }
 
+// GetFollowedStreams returns a list of streams the user follows, based on user auth token.
 func (c *Client) GetFollowedStreams(oauth string) (*FollowedStream, error) {
 	url := "/streams/followed"
 	opts := &doOptions{
