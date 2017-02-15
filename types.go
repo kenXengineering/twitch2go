@@ -195,3 +195,9 @@ type FollowedStream struct {
 	Total   int64    `json:"_total"`
 	Streams []Stream `json:"streams"`
 }
+
+type ResponseError struct {
+	Error   string      `json:"error"`
+	Message string      `json:"message"`
+	Status  json.Number `json:"status,number"`
+}

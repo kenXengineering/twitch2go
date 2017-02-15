@@ -29,8 +29,21 @@ func (c *Client) GetUserByOAuth(oauth string) (*User, error) {
 	return user, nil
 }
 
+// GetUserByID will return ther user for the given ID.
 func (c *Client) GetUserByID(userID string) (*User, error) {
 	url := "/users/" + userID
+	// Do the request
+	resp, err := c.do("GET", url, &doOptions{})
+	if err != nil {
+		return nil, errors.Annotate(err, "GetUserByID")
+	}
+	defer resp.Body.Close()
+	user := &User{}
+	err = json.NewDecoder(resp.Body).Decode(user)
+	if err != nil {
+		return nil, errors.Annotate(err, "Error deocding JSON")
+	}
+	return user, nil
 }
 
 /*
@@ -74,4 +87,41 @@ func (c *Client) GetUserFollows(userID string, limit int, offset int, direction 
 		return nil, errors.Annotate(err, "Error decoding JSON")
 	}
 	return follows, nil
+}
+
+// CheckUserSubscriptionByChannel will return a user object if the given user is subscribed to the given channel.  If no user and an error is returned, then either the user is not subscribed to the channel, or the channel does not have a subscription program.
+func (c *Client) CheckUserSubscriptionByChannel(userID string, channelID string, oauth string) (*User, error) {
+	url := "/users/" + userID + "/subscriptions/" + channelID
+	opts := &doOptions{
+		oauth: oauth,
+	}
+	// Do the request
+	resp, err := c.do("GET", url, opts)
+	if err != nil {
+		return nil, errors.Annotate(err, "CheckUserSubscriptionByChannel")
+	}
+	defer resp.Body.Close()
+	user := &User{}
+	err = json.NewDecoder(resp.Body).Decode(user)
+	if err != nil {
+		return nil, errors.Annotate(err, "Error decoding JSON")
+	}
+	return user, nil
+}
+
+// CheckUserFollowsChannel will return the user object if the user is following the given channel.  If no users and an error is returned, then the user is not following the channel.
+func (c *Client) CheckUserFollowsChannel(userID string, channelID string) (*User, error) {
+	url := "/users/" + userID + "/follows/channels/" + channelID
+	// Do the request
+	resp, err := c.do("GET", url, &doOptions{})
+	if err != nil {
+		return nil, errors.Annotate(err, "CheckUserFollowsChannel")
+	}
+	defer resp.Body.Close()
+	user := &User{}
+	err = json.NewDecoder(resp.Body).Decode(user)
+	if err != nil {
+		return nil, errors.Annotate(err, "Error decoding JSON")
+	}
+	return user, nil
 }
