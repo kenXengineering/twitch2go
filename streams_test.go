@@ -59,10 +59,31 @@ func TestGetStreamByChannel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(*stream, expected) {
+	if !reflect.DeepEqual(*stream, expected.Stream) {
 		t.Errorf("GetStreamByChannel(%q): Expected %#v.  Got %#v.", channelID, expected, stream)
 	}
 
+}
+
+func TestGetOfflineStream(t *testing.T) {
+	channelID := "123456"
+	jsonResponse := `{
+  "stream": null
+}`
+	var expected StreamResponse
+	err := json.Unmarshal([]byte(jsonResponse), &expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fakeRT := &FakeRoundTripper{message: jsonResponse, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	stream, err := client.GetStreamByChannel(channelID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(*stream, expected.Stream) {
+		t.Errorf("GetStreamByChannel(%q): Expected %#v.  Got %#v.", channelID, expected, stream)
+	}
 }
 
 func TestGetFollowedStream(t *testing.T) {

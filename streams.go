@@ -7,7 +7,7 @@ import (
 )
 
 // GetStreamByChannel returns a StreamResponse for the given channel
-func (c *Client) GetStreamByChannel(channelID string) (*StreamResponse, error) {
+func (c *Client) GetStreamByChannel(channelID string) (*Stream, error) {
 	url := "/streams/" + channelID
 	// Do the request
 	resp, err := c.do("GET", url, &doOptions{})
@@ -20,7 +20,7 @@ func (c *Client) GetStreamByChannel(channelID string) (*StreamResponse, error) {
 	if err != nil {
 		return nil, errors.Annotate(err, "Error decoding JSON")
 	}
-	return stream, nil
+	return &stream.Stream, nil
 }
 
 // GetFollowedStreams returns a list of streams the user follows, based on user auth token.
