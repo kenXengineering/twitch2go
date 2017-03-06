@@ -37,8 +37,8 @@ type Channel struct {
 	ProfileBannerBackgroundColor string      `json:"profile_banner_background_color"`
 	Partner                      bool        `json:"partner"`
 	URL                          string      `json:"url"`
-	Views                        int64       `json:"views"`
-	Followers                    int64       `json:"followers"`
+	Views                        uint        `json:"views"`
+	Followers                    uint        `json:"followers"`
 }
 
 type Post struct {
@@ -60,7 +60,7 @@ type Follow struct {
 }
 
 type Followers struct {
-	Total   int64    `json:"_total"`
+	Total   uint     `json:"_total"`
 	Cursor  string   `json:"_cursor"`
 	Follows []Follow `json:"follows"`
 }
@@ -72,13 +72,13 @@ type Subscription struct {
 }
 
 type Subscribers struct {
-	Total         int64          `json:"_total"`
+	Total         uint           `json:"_total"`
 	Cursor        string         `json:"_cursor"`
 	Subscriptions []Subscription `json:"subscriptions"`
 }
 
 type UserSearchResult struct {
-	Total int64  `json:"_total"`
+	Total uint   `json:"_total"`
 	Users []User `json:"users"`
 }
 
@@ -109,7 +109,7 @@ type Editors struct {
 }
 
 type Videos struct {
-	Total  int     `json:"_total"`
+	Total  uint    `json:"_total"`
 	Videos []Video `json:"videos"`
 }
 
@@ -124,7 +124,7 @@ type Video struct {
 	Fps             Fps         `json:"fps"`
 	Game            string      `json:"game"`
 	Language        string      `json:"language"`
-	Length          int         `json:"length"`
+	Length          uint        `json:"length"`
 	Preview         Preview     `json:"preview"`
 	PublishedAt     time.Time   `json:"published_at"`
 	Resolutions     Resolutions `json:"resolutions"`
@@ -135,7 +135,7 @@ type Video struct {
 	URL             string      `json:"url"`
 	Viewable        string      `json:"viewable"`
 	ViewableAt      interface{} `json:"viewable_at"`
-	Views           int         `json:"views"`
+	Views           uint        `json:"views"`
 }
 
 type Thumbnail struct {
@@ -177,10 +177,10 @@ type Stream struct {
 	ID          json.Number `json:"_id,number"`
 	Game        string      `json:"game"`
 	CommunityID string      `json:"community_id"`
-	Viewers     int         `json:"viewers"`
-	VideoHeight int         `json:"video_height"`
+	Viewers     uint        `json:"viewers"`
+	VideoHeight uint        `json:"video_height"`
 	AverageFps  float64     `json:"average_fps"`
-	Delay       int         `json:"delay"`
+	Delay       uint        `json:"delay"`
 	CreatedAt   time.Time   `json:"created_at"`
 	IsPlaylist  bool        `json:"is_playlist"`
 	Preview     Preview     `json:"preview"`
@@ -192,7 +192,7 @@ type StreamResponse struct {
 }
 
 type FollowedStream struct {
-	Total   int64    `json:"_total"`
+	Total   uint     `json:"_total"`
 	Streams []Stream `json:"streams"`
 }
 
