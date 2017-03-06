@@ -29,10 +29,11 @@ type doOptions struct {
 	context   context.Context
 }
 
-var (
-	apiURL  = "https://api.twitch.tv"
-	apiPath = "kraken"
-	limit   = int64(25)
+const (
+	apiURL          = "https://api.twitch.tv"
+	apiPath         = "kraken"
+	limit           = int64(25)
+	ChatterEndpoint = "https://tmi.twitch.tv/group/user/%s/chatters"
 )
 
 // Error represents a failure from the API.
@@ -109,6 +110,23 @@ func (c *Client) do(method, urlPath string, doOptions *doOptions) (*http.Respons
 	resp, err := ctxhttp.Do(ctx, httpClient, req)
 	if err != nil {
 		return nil, errors.Trace(chooseError(ctx, err))
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
+		return nil, errors.Trace(newError(resp))
+	}
+	return resp, nil
+}
+
+func (c *Client) doChatters(method, channel string) (*http.Response, error) {
+	httpClient := c.HTTPClient
+	u := fmt.Sprintf(ChatterEndpoint, channel)
+	req, err := http.NewRequest(method, u, nil)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	resp, err := ctxhttp.Do(context.Background(), httpClient, req)
+	if err != nil {
+		return nil, errors.Trace(chooseError(context.Background(), err))
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
 		return nil, errors.Trace(newError(resp))

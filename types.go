@@ -201,3 +201,16 @@ type ResponseError struct {
 	Message string      `json:"message"`
 	Status  json.Number `json:"status,number"`
 }
+
+type ChatterResponse struct {
+	ChatterCount uint     `json:"chatter_count"`
+	Chatters     Chatters `json:"chatters"`
+}
+
+type Chatters struct {
+	Moderators []string `json:"moderators"`
+	Staff      []string `json:"staff"`
+	Admins     []string `json:"admins"`
+	GlobalMods []string `json:"global_mods"`
+	Viewers    []string `json:"viewers"`
+}
